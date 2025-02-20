@@ -9,14 +9,17 @@ import {
   X,
   User,
   ShoppingBag,
+  Brain
 } from "lucide-react";
 import Link from "next/link";
+import AskAIModal from "./askAiModal";
 
 const Header = ({ favorites, products, onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const categories = ["New Arrivals", "Men", "Women", "Accessories", "Sale"];
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const searchRef = useRef(null);
 
   // Handle Search Input
@@ -56,6 +59,12 @@ const Header = ({ favorites, products, onSearch }) => {
       searchRef.current.focus();
     }
   }, [isSearchOpen]);
+
+
+  const handleAskAI = () => {
+    setIsModalOpen(true);
+  };
+
 
   return (
     <header className="fixed w-full z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-800">
@@ -125,11 +134,24 @@ const Header = ({ favorites, products, onSearch }) => {
                     onChange={handleSearchChange}
                     className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
+
+                  {/* Ask AI Button */}
+                  <button onClick={handleAskAI} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                    🤖 Ask AI
+                  </button>
+
+                  <AskAIModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </div>
               )}
+
             </div>
 
             {/* Favorites */}
+            <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative">
+              <Link href="/ai">
+                <Brain className='w-5 h-5' />
+              </Link>
+            </button>
             <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative">
               <Link href="/favorites">
                 <Heart className="h-5 w-5" />
