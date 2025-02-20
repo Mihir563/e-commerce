@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Copy, Send } from 'lucide-react';
 import Header from '../components/Header';
+import { useDispatch, useSelector } from "react-redux";
 
 const CodeBlock = ({ code }) => {
     const [copied, setCopied] = useState(false);
@@ -105,6 +106,10 @@ export default function AIChatGemini() {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef(null);
+    const dispatch = useDispatch();
+    const favorites = useSelector((state) => state.favorites.items);
+    const cart = useSelector((state) => state.cart.items);
+
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -147,10 +152,10 @@ export default function AIChatGemini() {
 
     return (
         <>
-        <Header/>
+        <Header cart={cart} favorites={favorites}/>
             <div className="flex flex-col w-full h-screen bg-gradient-to-br from-gray-900 via-sky-950 to-green-950 pt-10">
                 <div className="flex-1 overflow-y-auto p-6">
-                    <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400  hover:bg-gradient-to-l duration-300 sticky inset-0 ml-8">
+                    <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400  hover:bg-gradient-to-l duration-300 sticky inset-0 ml-3">
                         Shopping Assistant AI
                     </h1>
                     <div className="max-w-3xl mx-auto">

@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 import AskAIModal from "./askAiModal";
 
-const Header = ({ favorites, products, onSearch }) => {
+const Header = ({ favorites, products, onSearch, cart }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -158,7 +158,7 @@ const Header = ({ favorites, products, onSearch }) => {
               </Link>
               {favorites?.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {favorites.length}
+                  {favorites?.length}
                 </span>
               )}
             </button>
@@ -167,13 +167,15 @@ const Header = ({ favorites, products, onSearch }) => {
             <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative">
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                0
+                {cart?.length}
               </span>
             </button>
 
             {/* User */}
             <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200">
-              <User className="h-5 w-5" />
+              <Link href="/user">
+                <User className="h-5 w-5" />
+              </Link>
             </button>
 
             {/* Mobile Menu Button */}

@@ -4,6 +4,7 @@ import React, { useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { ShoppingCart, Star, Heart, ArrowLeft } from "lucide-react";
 import { removeFavorite } from "../../store/favoritesSlice";
+import { addCart, removeCart} from "../../store/addToCartSlice";
 import Header from '../components/Header';
 import Link from 'next/link';
 
@@ -14,6 +15,7 @@ const EMPTY_STATE_CTA = "Continue Shopping";
 const TITLE = "Your Favorites";
 const SUBTITLE_WITH_ITEMS = "Collection of your most loved items";
 const SUBTITLE_EMPTY = "Start adding items to your favorites!";
+
 
 // Memoized ProductCard component
 const ProductCard = React.memo(({ product, index, onRemove }) => {
@@ -77,7 +79,15 @@ const ProductTitle = React.memo(({ title }) => (
 const ProductActions = React.memo(({ price }) => (
     <div className="flex items-center justify-between">
         <p className="text-2xl font-bold text-blue-400">${price}</p>
-        <button className="bg-blue-600 hover:bg-blue-500 p-3 rounded-xl transition-all 
+        <button
+            onClick={() => {
+                dispatch(
+                    isCart(product.id)
+                        ? removeCart(product)
+                        : addCart(product)
+                );
+                addedToCart(product.title);
+            }} className="bg-blue-600 hover:bg-blue-500 p-3 rounded-xl transition-all 
                      duration-200 hover:scale-105 active:scale-95">
             <ShoppingCart className="w-5 h-5 transition-transform duration-200 
                             group-hover:scale-110" />
@@ -104,6 +114,7 @@ const EmptyState = React.memo(() => (
 const FavoritesPage = () => {
     const dispatch = useDispatch();
     const favorites = useSelector((state) => state.favorites.items);
+    const cart = useSelector((state) => state.cart.items);
 
     // Memoized handler for removing favorites
     const handleRemoveFavorite = useCallback((id) => {
@@ -118,8 +129,8 @@ const FavoritesPage = () => {
 
     return (
         <>
-            <Header favorites={favorites} />
-            <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+            <Header favorites={favorites} cart={cart}/>
+            <main className="min-h-screen bg-gradient-to-br pt-10 from-gray-900 via-gray-800 to-black text-white">
                 {/* Hero Section */}
                 <div className="relative overflow-hidden pt-">
                     <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-3xl animate-fadeIn" />

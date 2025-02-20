@@ -6,14 +6,17 @@ import { ShoppingCart, Star, Heart } from "lucide-react";
 import Header from "./components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFavorite, addFavorite } from "../store/favoritesSlice";
-import { addCart } from "../store/addToCartSlice";
-import { ToastContainer, toast } from "react-toastify";
+import { addCart, removeCart } from "../store/addToCartSlice";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const dispatch = useDispatch();
   const favorites = useSelector((state) => state.favorites.items);
+  const cart = useSelector((state) => state.cart.items);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,6 +29,22 @@ export default function HomePage() {
       autoClose: 1000,
       theme: "dark",
       icon: "❤️",
+    });
+  };
+  const addedToCart = (name) => {
+    toast.success(`${name} added to Cart!`, {
+      position: "bottom-right",
+      autoClose: 1000,
+      theme: "dark",
+      icon: "❤️",
+      style: {
+        background: "linear-gradient(#111827, #1f2937 ,#000)", // Custom gradient
+        color: "blue",
+        fontSize: "16px",
+        fontWeight: "bold",
+        borderRadius: "10px",
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+      },
     });
   };
 
@@ -64,6 +83,7 @@ export default function HomePage() {
 
   // Check if a product is in favorites
   const isFavorite = (id) => favorites.some((item) => item.id === id);
+  const isCart = (id) => cart.some((item) => item.id === id);
 
   return (
     <>
@@ -71,6 +91,7 @@ export default function HomePage() {
         favorites={favorites}
         products={products}
         onSearch={setFilteredProducts}
+        cart={cart}
       />
       <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black hover">
         {/* Hero Section */}
@@ -159,7 +180,14 @@ export default function HomePage() {
                           ${product.price}
                         </p>
                         <button
-                          onClick={() => dispatch(addCart(product))}
+                          onClick={() => {
+                            dispatch(
+                              isCart(product.id)
+                                ? removeCart(product)
+                                : addCart(product)
+                            );
+                            addedToCart(product.title);
+                          }}
                           className="bg-blue-600 hover:bg-blue-500 p-3 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                         >
                           <ShoppingCart className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
