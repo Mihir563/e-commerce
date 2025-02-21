@@ -12,15 +12,19 @@ import {
   Brain
 } from "lucide-react";
 import Link from "next/link";
-import AskAIModal from "./askAiModal";
+import { useDispatch, useSelector } from "react-redux";
+import { removeFavorite, addFavorite, fetchFavorites } from "../../store/favoritesSlice";
+import { addCart, removeCart, fetchCart } from "../../store/addToCartSlice";
 
 const Header = ({ favorites, products, onSearch, cart }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const categories = ["New Arrivals", "Men", "Women", "Accessories", "Sale"];
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const searchRef = useRef(null);
+  const dispatch = useDispatch();
+  const realfavorites = useSelector((state) => state.favorites.items);
+  const realcart = useSelector((state) => state.cart.items);
 
   // Handle Search Input
   const handleSearchChange = (e) => {
@@ -60,10 +64,13 @@ const Header = ({ favorites, products, onSearch, cart }) => {
     }
   }, [isSearchOpen]);
 
-
-  const handleAskAI = () => {
-    setIsModalOpen(true);
-  };
+  const user = localStorage.getItem("user");
+  const parsedUser = JSON.parse(user);
+  const userId = parsedUser._id;
+  useEffect(() => {
+    dispatch(fetchFavorites(userId));
+    dispatch(fetchCart(userId));
+  }, [dispatch]);
 
 
   return (
@@ -136,11 +143,10 @@ const Header = ({ favorites, products, onSearch, cart }) => {
                   />
 
                   {/* Ask AI Button */}
-                  <button onClick={handleAskAI} className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                  <Link href='/ai' className="bg-blue-600 text-white px-4 py-2 rounded-lg">
                     🤖 Ask AI
-                  </button>
+                  </Link>
 
-                  <AskAIModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </div>
               )}
 
@@ -156,18 +162,19 @@ const Header = ({ favorites, products, onSearch, cart }) => {
               <Link href="/favorites">
                 <Heart className="h-5 w-5" />
               </Link>
-              {favorites?.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {favorites?.length}
+                  {realfavorites?.length}
                 </span>
-              )}
+
             </button>
 
             {/* Cart */}
             <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative">
-              <ShoppingCart className="h-5 w-5" />
+              <Link href="/cart">
+                <ShoppingCart className="h-5 w-5" />
+              </Link>
               <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                {cart?.length}
+                {realcart?.length}
               </span>
             </button>
 

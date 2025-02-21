@@ -3,19 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFavorite } from "../../store/favoritesSlice";
-import { removeCart } from "../../store/addToCartSlice";
+import { removeFavorite, fetchFavorites } from "../../store/favoritesSlice";
+import { removeCart, fetchCart } from "../../store/addToCartSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import Header from "../components/Header";
 import {
   Heart,
-  ShoppingCart,
   LogOut,
-  LucideRemoveFormatting,
-  Delete,
-  DeleteIcon,
   CircleX,
 } from "lucide-react";
 
@@ -42,7 +38,6 @@ export default function UserPage() {
   // Redux states
   const favorites = useSelector((state) => state.favorites.items);
   const cart = useSelector((state) => state.cart.items);
-
   // Logout function
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -53,6 +48,13 @@ export default function UserPage() {
     });
     setTimeout(() => router.push("auth/login"), 1000);
   };
+  const loggedInuser = localStorage.getItem("user")
+  const parsedUser = JSON.parse(loggedInuser)
+  const userId = parsedUser._id;
+  useEffect(() => {
+    dispatch(fetchFavorites(userId));
+    dispatch(fetchCart(userId));
+  }, [dispatch]);
 
   return (
     <>
@@ -89,13 +91,14 @@ export default function UserPage() {
                           alt=""
                           className="size-20 rounded-lg"
                         />
-                        <p className="text-white">
+                        <div className="text-white">
                           {item.title}
                           <p className="text-blue-500 font-semibold">
                             price: ${item.price}
                           </p>
-                        </p>
-                        <button onClick={() => dispatch(removeFavorite(item))}>
+                        </div>
+                        <button onClick={() => dispatch( removeFavorite({ userId, productId: item._id })
+                        )}>
                           <Heart
                             className={`w-5 h-5 fill-blue-500 text-blue-500`}
                           />
@@ -115,24 +118,23 @@ export default function UserPage() {
                   <div className="grid grid-cols-2 gap-3 mt-4">
                     {cart.map((item) => (
                       <div
-                        key={item.id}
+                        key={item._id}
                         className="bg-gradient-to-b flex justify-between items-center gap-2 from-sky-950 via-blue-950 to-slate-900 rounded-2xl p-6 border shadow-xl transition-all duration-700 hover:-translate-y-2 hover:shadow-3xl hover:bg-gradient-to-br"
                       >
                         <img
-                          src={item.image}
+                          src={item.productId.image}
                           alt="image"
                           className="size-20 rounded-lg"
                         />
-                        <p className="text-white">
-                          {item.title}
+                        <div className="text-white">
+                          {item.productId.title}
                           <p className="text-blue-500 font-semibold">
-                            price: ${item.price}
+                            price: ${item.productId.price}
                           </p>
-                        </p>
+                        </div>
                         <button
-                          onClick={() => dispatch(removeCart(item))}
-                          className="text-blue-500 hover:text-blue-400 flex justify-center items-center gap-4
-                                                    "
+                          onClick={() => dispatch(removeCart({ userId, productId: item.productId._id })) }
+                          className="text-blue-500 hover:text-blue-400 flex justify-center items-center gap-4"
                         >
                           <span>Remove From Cart</span>
                           <CircleX className="w-10 h-10" />

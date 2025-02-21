@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export async function POST(req) {
   try {
     const { input } = await req.json();
-    const apiKey ="AIzaSyCvdZb93zOa9qn28xTOPfpMy1S-diZzLoA";
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       throw new Error("API key is missing. Check your .env file.");

@@ -5,8 +5,8 @@ import axios from "axios";
 import { ShoppingCart, Star, Heart } from "lucide-react";
 import Header from "./components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFavorite, addFavorite } from "../store/favoritesSlice";
-import { addCart, removeCart } from "../store/addToCartSlice";
+import { removeFavorite, addFavorite, fetchFavorites } from "../store/favoritesSlice";
+import { addCart, removeCart, fetchCart } from "../store/addToCartSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -17,10 +17,14 @@ export default function HomePage() {
   const dispatch = useDispatch();
   const favorites = useSelector((state) => state.favorites.items);
   const cart = useSelector((state) => state.cart.items);
-
+  const user = localStorage.getItem("user")
+  const parsedUser = JSON.parse(user)
+  
+  
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8; // Adjust the number of products per page
+  const userId = parsedUser._id;
 
   // Toast notification for favorites
   const notify = (name) => {
@@ -52,7 +56,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("https://fakestoreapi.com/products");
+        const response = await axios.get("http://localhost:3000/api/products");
         setProducts(response.data);
         setFilteredProducts(response.data);
       } catch (error) {
@@ -62,6 +66,11 @@ export default function HomePage() {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    const userId = parsedUser._id;
+    dispatch(fetchFavorites(userId));
+    dispatch(fetchCart(userId));
+  }, [dispatch]);
   // Handle search/filter
   useEffect(() => {
     setCurrentPage(1); // Reset to first page when filtering
@@ -132,8 +141,8 @@ export default function HomePage() {
                         onClick={() => {
                           dispatch(
                             isFavorite(product.id)
-                              ? removeFavorite(product)
-                              : addFavorite(product)
+                              ? removeFavorite({ userId, productId: product._id })
+                              : addFavorite({ userId, product })
                           );
                           notify(product.title);
                         }}
@@ -183,14 +192,14 @@ export default function HomePage() {
                           onClick={() => {
                             dispatch(
                               isCart(product.id)
-                                ? removeCart(product)
-                                : addCart(product)
+                                ? removeCart({ userId, productId: product._id })
+                                : addCart({ userId, product })
                             );
                             addedToCart(product.title);
                           }}
-                          className="bg-blue-600 hover:bg-blue-500 p-3 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
+                          className="p-3 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                         >
-                          <ShoppingCart className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+                          <ShoppingCart className={`h-5 w-5 ${isCart(product.id) ? "fill-blue-500 text-blue-500" :"text-blue-500"}`} />
                         </button>
                       </div>
                     </div>
