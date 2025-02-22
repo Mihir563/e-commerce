@@ -198,7 +198,7 @@ const ProductPage = () => {
                                 ${product.price}
                             </p>
                             <button
-                                onClick={() => router.push(`/products/${product._id}`)}
+                                onClick={() => router.push(`/product/${product._id}`)}
                                 className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg transition-colors duration-200"
                             >
                                 View Details
