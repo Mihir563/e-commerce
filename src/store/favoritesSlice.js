@@ -13,12 +13,16 @@ export const fetchFavorites = createAsyncThunk("favorites/fetchFavorites", async
 
 // Add a product to favorites
 export const addFavorite = createAsyncThunk("favorites/addFavorite", async ({ userId, product }) => {
+    console.log(userId, product);
+
     await axios.post(`/api/favorites`, { userId, productId: product._id }); // Use `_id`
     return product; // Return full product object
 });
 
 // Remove a product from favorites
 export const removeFavorite = createAsyncThunk("favorites/removeFavorite", async ({ userId, productId }) => {
+    console.log(userId, productId);
+    
     await axios.delete(`/api/favorites`, { data: { userId, productId } });
     return productId; // Return `_id` of removed product
 });

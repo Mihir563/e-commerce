@@ -37,7 +37,7 @@ const addToCartSlice = createSlice({
                 if (!itemExists) state.items.push(action.payload);
             })
             .addCase(removeCart.fulfilled, (state, action) => {
-                state.items = state.items.filter((item) => item.productId._id !== action.payload);
+                state.items = state.items.filter((item) => item.productId?._id !== action.payload);
             });
     },
 });

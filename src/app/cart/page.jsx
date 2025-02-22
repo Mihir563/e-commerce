@@ -35,8 +35,8 @@ const CartItem = React.memo(({ product, index, onRemove }) => {
                      shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
                 <div className="relative overflow-hidden rounded-xl aspect-square mb-6">
                     <img
-                        src={product.image}
-                        alt={product.title}
+                        src={product?.image}
+                        alt={product?.title}
                         className="object-fill w-full h-full transition-transform duration-300"
                         loading="lazy"
                     />
@@ -96,7 +96,7 @@ const CartPage = () => {
     );
 
     const totalPrice = useMemo(() =>
-        cart.reduce((sum, item) => sum + item.productId.price, 0).toFixed(2),
+        cart.reduce((sum, item) => sum + item?.productId?.price, 0).toFixed(2),
         [cart]
     );
 

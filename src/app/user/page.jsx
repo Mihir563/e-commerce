@@ -50,7 +50,7 @@ export default function UserPage() {
   };
   const loggedInuser = localStorage.getItem("user")
   const parsedUser = JSON.parse(loggedInuser)
-  const userId = parsedUser._id;
+  const userId = parsedUser?._id;
   useEffect(() => {
     dispatch(fetchFavorites(userId));
     dispatch(fetchCart(userId));

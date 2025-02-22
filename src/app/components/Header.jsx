@@ -9,44 +9,55 @@ import {
   X,
   User,
   ShoppingBag,
-  Brain
+  Brain,
+  ChevronDown
 } from "lucide-react";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFavorite, addFavorite, fetchFavorites } from "../../store/favoritesSlice";
-import { addCart, removeCart, fetchCart } from "../../store/addToCartSlice";
+import { fetchFavorites } from "../../store/favoritesSlice";
+import { fetchCart } from "../../store/addToCartSlice";
 
 const Header = ({ favorites, products, onSearch, cart }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const categories = ["New Arrivals", "Men", "Women", "Accessories", "Sale"];
+  const [searchResults, setSearchResults] = useState([]);
   const searchRef = useRef(null);
+  const searchContainerRef = useRef(null);
   const dispatch = useDispatch();
-  const realfavorites = useSelector((state) => state.favorites.items);
-  const realcart = useSelector((state) => state.cart.items);
+  const realFavorites = useSelector((state) => state.favorites.items);
+  const realCart = useSelector((state) => state.cart.items);
 
-  // Handle Search Input
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle Search Input with debouncing
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
 
     if (term.trim() === "") {
-      onSearch(products ?? []); // Show all products when input is empty
+      setSearchResults([]);
+      onSearch(products ?? []);
       return;
     }
 
     const filteredProducts = (products ?? []).filter((product) =>
       product?.title
         ?.toLowerCase()
-        .split(" ")
-        .join("")
-        .split("-")
-        .join("")
         .includes(term.toLowerCase())
     );
 
-    console.log(filteredProducts);
+    setSearchResults(filteredProducts.slice(0, 5)); // Show only top 5 results
     onSearch(filteredProducts);
   };
 
@@ -54,141 +65,171 @@ const Header = ({ favorites, products, onSearch, cart }) => {
     if (isSearchOpen) {
       searchRef.current?.focus();
     } else {
-      setSearchTerm(""); // Clear input when search is closed
+      setSearchTerm("");
+      setSearchResults([]);
     }
   }, [isSearchOpen]);
 
-  useEffect(() => {
-    if (isSearchOpen && searchRef.current) {
-      searchRef.current.focus();
-    }
-  }, [isSearchOpen]);
-
+  // Fetch user data
   const user = localStorage.getItem("user");
   const parsedUser = JSON.parse(user);
-  const userId = parsedUser._id;
-  useEffect(() => {
-    dispatch(fetchFavorites(userId));
-    dispatch(fetchCart(userId));
-  }, [dispatch]);
+  const userId = parsedUser?._id;
 
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchFavorites(userId));
+      dispatch(fetchCart(userId));
+    }
+  }, [dispatch, userId]);
 
   return (
     <header className="fixed w-full z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center hover:scale-105 transition-transform duration-200">
+          <Link href="/" className="flex items-center hover:scale-105 transition-transform duration-200">
             <ShoppingBag className="h-8 w-8 text-blue-400" />
             <span className="ml-2 text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               FutureShop
             </span>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8  ">
-            <Link
-              href="/"
-              className="text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-200"
-            >
-              Home
-            </Link>
-            <Link
-              href="/products/category/men's clothing"
-              className="text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-200"
-            >
-              Men's
-            </Link>
-            <Link
-              href="/products/category/women's clothing"
-              className="text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-200"
-            >
-              Women's
-            </Link>
-            <Link
-              href="/products/category/electronics"
-              className="text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-200"
-            >
-              Electronics
-            </Link>
-            <Link
-              href="/products/category/jewelery"
-              className="text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-200"
-            >
-              Jewelry
-            </Link>
+          <nav className="hidden md:flex space-x-8">
+            {[
+              { href: "/", label: "Home" },
+              { href: "/products/category/men's clothing", label: "Men's" },
+              { href: "/products/category/women's clothing", label: "Women's" },
+              { href: "/products/category/electronics", label: "Electronics" },
+              { href: "/products/category/jewelery", label: "Jewelry" },
+            ].map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-200"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <div className="relative">
+            <div className="relative" ref={searchContainerRef}>
               <button
-                onClick={() => setIsSearchOpen((prev) => !prev)}
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
                 className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200"
+                title="Search"
               >
                 <Search className="h-5 w-5" />
               </button>
 
-              {/* Search Input */}
+              {/* Search Input and Results */}
               {isSearchOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-gray-800 rounded-lg shadow-xl p-2 animate-fadeIn">
-                  <input
-                    ref={searchRef}
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
+                <div className="absolute right-0 mt-2 w-80 bg-gray-800 rounded-lg shadow-xl overflow-hidden animate-fadeIn">
+                  <div className="p-2">
+                    <input
+                      ref={searchRef}
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                      className="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                  </div>
 
-                  {/* Ask AI Button */}
-                  <Link href='/ai' className="bg-blue-600 text-white px-4 py-2 rounded-lg">
-                    🤖 Ask AI
-                  </Link>
+                  {searchResults.length > 0 && (
+                    <div className="max-h-64 overflow-y-auto border-t border-gray-700">
+                      {searchResults.map((product) => (
+                        <Link
+                          key={product.id}
+                          href={`/products/${product._id}`}
+                          className="flex items-center gap-3 p-2 hover:bg-gray-700 transition-colors"
+                          onClick={() => setIsSearchOpen(false)}
+                        >
+                          <img
+                            src={product.image}
+                            alt={product.title}
+                            className="w-10 h-10 object-cover rounded"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-white truncate">{product.title}</p>
+                            <p className="text-sm text-blue-400">${product.price}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
 
+                  <div className="p-2 border-t border-gray-700">
+                    <Link
+                      href="/ai"
+                      className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors"
+                      onClick={() => setIsSearchOpen(false)}
+                    >
+                      <Brain className="w-4 h-4" />
+                      Ask AI Assistant
+                    </Link>
+                  </div>
                 </div>
               )}
-
             </div>
 
-            {/* Favorites */}
-            <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative">
-              <Link href="/ai">
-                <Brain className='w-5 h-5' />
-              </Link>
-            </button>
-            <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative">
-              <Link href="/favorites">
-                <Heart className="h-5 w-5" />
-              </Link>
-                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {realfavorites?.length}
-                </span>
+            {/* AI */}
+            <Link
+              href="/ai"
+              className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative"
+              title="AI Assistant"
+            >
+              <Brain className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 text-red-500 font-semibold text-xs">
+                new
+              </span>
+            </Link>
 
-            </button>
+            {/* Favorites */}
+            <Link
+              href="/favorites"
+              className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative"
+              title="Favorites"
+            >
+              <Heart className="h-5 w-5" />
+              {realFavorites?.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {realFavorites.length}
+                </span>
+              )}
+            </Link>
 
             {/* Cart */}
-            <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative">
-              <Link href="/cart">
-                <ShoppingCart className="h-5 w-5" />
-              </Link>
-              <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                {realcart?.length}
-              </span>
-            </button>
+            <Link
+              href="/cart"
+              className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200 relative"
+              title="Cart"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              {realCart?.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {realCart.length}
+                </span>
+              )}
+            </Link>
 
             {/* User */}
-            <button className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200">
-              <Link href="/user">
-                <User className="h-5 w-5" />
-              </Link>
-            </button>
+            <Link
+              href="/user"
+              className="p-2 text-gray-300 hover:text-white hover:scale-110 transition-transform duration-200"
+              title="Account"
+            >
+              <User className="h-5 w-5" />
+            </Link>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 text-gray-300 hover:text-white transition-colors duration-200"
+              aria-label="Toggle menu"
             >
               {isMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -198,6 +239,30 @@ const Header = ({ favorites, products, onSearch, cart }) => {
             </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-700">
+              {[
+                { href: "/", label: "Home" },
+                { href: "/products/category/men's clothing", label: "Men's" },
+                { href: "/products/category/women's clothing", label: "Women's" },
+                { href: "/products/category/electronics", label: "Electronics" },
+                { href: "/products/category/jewelery", label: "Jewelry" },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

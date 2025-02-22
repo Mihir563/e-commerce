@@ -47,6 +47,7 @@ export async function DELETE(req) {
     const { userId, productId } = await req.json();
 
     if (!userId || !productId) {
+
         return NextResponse.json({ success: false, error: "Missing userId or productId" }, { status: 400 });
     }
 
@@ -67,6 +68,7 @@ export async function PUT(req) {
 
     if (!userId || !Array.isArray(productIds)) {
         return NextResponse.json({ success: false, error: "Invalid userId or productIds" }, { status: 400 });
+        
     }
 
     // Validate and convert productIds to ObjectId
