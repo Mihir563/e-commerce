@@ -51,7 +51,7 @@ const CartItem = React.memo(({ product, index, onRemove }) => {
 
                 <div className="space-y-3">
                     <h2 className="font-semibold text-lg leading-tight">
-                        {product.title?.length > 40 ? `${product.title.substring(0, 40)}...` : product.title}
+                        {product?.title?.length > 40 ? `${product?.title?.substring(0, 40)}...` : product?.title}
                     </h2>
                     <p className="text-2xl font-bold text-blue-400">${product.price}</p>
                 </div>
