@@ -15,6 +15,7 @@ import {
   removeFavorite,
   fetchFavorites,
 } from "../../../store/favoritesSlice";
+import ReviewSection from "../../components/Review";
 
 const ProductPage = () => {
   const router = useRouter();
@@ -318,6 +319,7 @@ const ProductPage = () => {
                 </div>
               </div>
             </div>
+            <ReviewSection productId={productId} userId={userId}/>
 
             <RecommendedProducts />
           </div>

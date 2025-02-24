@@ -175,12 +175,12 @@ export default function CategoryPage() {
                       {/* Product Image + Favorite Button */}
                       <div
                         className="relative overflow-hidden rounded-xl aspect-square mb-6 cursor-pointer"
-                        onClick={() => handleProductClick(product.id)}
+                        onClick={() => handleProductClick(product._id)}
                       >
                         <img
                           src={product.image}
                           alt={product.title}
-                          className="object-cover w-full h-full rounded-md transition-transform duration-300 hover:scale-105"
+                          className="object-cover w-full h-full rounded-md transition-transform duration-300"
                         />
                         <button
                           onClick={(e) => {
