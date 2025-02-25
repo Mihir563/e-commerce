@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { ShoppingCart, Star, Heart, Loader2 } from "lucide-react";
+import { ShoppingCart, Star, Heart, Loader2, X } from "lucide-react";
 import Header from "./components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFavorite, addFavorite, fetchFavorites } from "../store/favoritesSlice";
@@ -11,18 +11,20 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
   const favorites = useSelector((state) => state.favorites.items);
   const cart = useSelector((state) => state.cart.items);
-  const user = localStorage.getItem("user");
-  const parsedUser = JSON.parse(user);
+  const user = typeof window !== 'undefined' ? localStorage.getItem("user") : null;
+  const parsedUser = user ? JSON.parse(user) : null;
 
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
@@ -48,6 +50,17 @@ export default function HomePage() {
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
       },
     });
+  };
+
+  // Toggle login modal
+  const toggleLoginModal = () => {
+    setShowLoginModal(!showLoginModal);
+  };
+
+  // Redirect to login page
+  const handleLogin = () => {
+    router.push('/auth/login');
+    setShowLoginModal(false);
   };
 
   // Fetch products with error handling
@@ -82,6 +95,23 @@ export default function HomePage() {
     setCurrentPage(1);
   }, [filteredProducts]);
 
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showLoginModal && e.target.classList.contains('modal-overlay')) {
+        setShowLoginModal(false);
+      }
+    };
+
+    if (showLoginModal) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showLoginModal]);
+
   // Pagination logic
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
   const startIndex = (currentPage - 1) * productsPerPage;
@@ -109,7 +139,13 @@ export default function HomePage() {
   if (error) {
     return (
       <>
-        <Header favorites={favorites} cart={cart} products={[]} onSearch={setFilteredProducts} />
+        <Header
+          favorites={favorites}
+          cart={cart}
+          products={[]}
+          onSearch={setFilteredProducts}
+          toggleLoginModal={toggleLoginModal}
+        />
         <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
           <div className="flex items-center justify-center h-[50vh]">
             <div className="text-center text-white">
@@ -134,11 +170,12 @@ export default function HomePage() {
         products={products}
         onSearch={setFilteredProducts}
         cart={cart}
+        toggleLoginModal={toggleLoginModal}
       />
       <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         {/* Hero Section */}
         <div className="relative overflow-hidden pt-10">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-3xl animate-fadeIn" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-3xl animate-fadeIn transition-colors duration-500" />
           <div className="relative px-6 py-20">
             <div className="text-center max-w-4xl mx-auto animate-slideDown">
               <h1 className="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 hover:bg-gradient-to-l duration-300">
@@ -181,6 +218,10 @@ export default function HomePage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (!userId) {
+                              setShowLoginModal(true);
+                              return;
+                            }
                             const action = isFavorite(product.id)
                               ? removeFavorite({ userId, productId: product._id })
                               : addFavorite({ userId, product });
@@ -195,8 +236,8 @@ export default function HomePage() {
                         >
                           <Heart
                             className={`w-5 h-5 ${isFavorite(product.id)
-                                ? "fill-blue-500 text-blue-500"
-                                : "text-blue-500"
+                              ? "fill-blue-500 text-blue-500"
+                              : "text-blue-500"
                               }`}
                           />
                         </button>
@@ -210,8 +251,8 @@ export default function HomePage() {
                               <Star
                                 key={i}
                                 className={`w-4 h-4 ${i < Math.floor(product.rating?.rate || 0)
-                                    ? "text-yellow-400 fill-yellow-400"
-                                    : "text-gray-600"
+                                  ? "text-yellow-400 fill-yellow-400"
+                                  : "text-gray-600"
                                   }`}
                               />
                             ))}
@@ -236,6 +277,10 @@ export default function HomePage() {
                           </p>
                           <button
                             onClick={() => {
+                              if (!userId) {
+                                setShowLoginModal(true);
+                                return;
+                              }
                               const action = isCart(product.id)
                                 ? removeCart({ userId, productId: product._id })
                                 : addCart({ userId, product });
@@ -250,8 +295,8 @@ export default function HomePage() {
                           >
                             <ShoppingCart
                               className={`h-5 w-5 ${isCart(product.id)
-                                  ? "fill-blue-500 text-blue-500"
-                                  : "text-blue-500"
+                                ? "fill-blue-500 text-blue-500"
+                                : "text-blue-500"
                                 }`}
                             />
                           </button>
@@ -291,6 +336,76 @@ export default function HomePage() {
             </div>
           )}
         </div>
+
+        {/* Login Modal */}
+        {showLoginModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-white/0 backdrop-blur-sm">
+            <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+              {/* Modal Header */}
+              <div className="flex justify-between items-center border-b border-blue-800/30 p-6 bg-sky-950">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Login</h2>
+                  <p className="text-gray-300 mt-1">Access your account</p>
+                </div>
+                <button
+                  onClick={toggleLoginModal}
+                  className="p-2 rounded-full hover:bg-slate-800 transition-colors"
+                >
+                  <X className="h-6 w-6 text-gray-300" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6">
+                <div className="space-y-6">
+                  {/* Login Benefits */}
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                        <ShoppingCart className="h-5 w-5 text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-medium">Manage Orders</h3>
+                        <p className="text-gray-400 text-sm">Track and manage your orders easily</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                        <Heart className="h-5 w-5 text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-medium">Save Favorites</h3>
+                        <p className="text-gray-400 text-sm">Keep track of items you love</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                        <Star className="h-5 w-5 text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-medium">Personalized Experience</h3>
+                        <p className="text-gray-400 text-sm">Get recommendations based on your preferences</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="pt-4 space-y-3">
+                    <button
+                      onClick={handleLogin}
+                      className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors"
+                    >
+                      Login / Sign Up
+                    </button>
+                    <p className="text-gray-400 text-center text-sm">
+                      By continuing, you agree to our Terms of Use and Privacy Policy
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <ToastContainer />
       </main>

@@ -5,11 +5,12 @@ import { Loader2, Trash, Edit, Star } from "lucide-react";
 import { toast } from "react-toastify";
 
 const StarRating = ({ rating, setRating }) => (
-    <div className="flex space-x-1">
+    <div className="flex space-x-1" onClick={(e) => e.stopPropagation()}>
         {[1, 2, 3, 4, 5].map((star) => (
             <button
+                type="button"
                 key={star}
-                onClick={() => setRating(star)}
+                onClick={(e) => { setRating(star); e.stopPropagation()}}
                 className={`transition-colors ${star <= rating ? "text-yellow-400 " : "text-gray-500"}`}
             >
                 <Star className={`w-5 h-5 transition-colors ${star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"}`} />
@@ -115,7 +116,7 @@ const ReviewSection = ({ productId, userId }) => {
         }
     };
 
-    const handleEdit = (review) => {
+    const   handleEdit = (review) => {
         setEditingReview(review);
         setReviewText(review.comment);
         setRating(review.rating);
@@ -154,14 +155,14 @@ const ReviewSection = ({ productId, userId }) => {
                     </div>
                 ) : productReviews.length > 0 ? (
                     productReviews.map((review) => (
-                        <div key={review._id} className="bg-gray-700 p-4 rounded-lg text-white">
+                        <div key={review._id} className="bg-violet-100/20 p-4 rounded-lg text-white">
                             <div className="flex justify-between items-start">
                                 <div className="space-y-2">
                                     <p className="text-sm text-gray-300 font-bold">
-                                        {review.userId?.name || "Anonymous"}
+                                        UserName: <span className="text-gray-50">{review.userId?.name || "Anonymous"}</span>
                                     </p>
-                                    <div className="text-sm text-gray-300 flex gap-2 items-center">Rating: <StarRating rating={review.rating} /></div>
-                                    <p>{review.comment}</p>
+                                    <div className="text-sm text-gray-300 flex gap-2 justify-between items-center">Rating: <StarRating rating={review.rating} /></div>
+                                    <p>"{review.comment}"</p>
                                 </div>
                                 {review.userId?._id === userId && (
                                     <div className="flex gap-2">

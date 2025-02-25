@@ -19,6 +19,7 @@ export default function CategoryPage() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const dispatch = useDispatch();
   const favorites = useSelector((state) => state.favorites.items);
   const cart = useSelector((state) => state.cart.items);
@@ -57,6 +58,8 @@ export default function CategoryPage() {
     });
   };
 
+
+  
   // Fetch products with error handling
   useEffect(() => {
     if (!category) return;

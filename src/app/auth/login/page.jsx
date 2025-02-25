@@ -46,8 +46,20 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-            <div className="max-w-md w-full bg-gray-900 p-8 rounded-2xl shadow-lg border border-gray-700">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black  relative z-10">
+            <div className="absolute inset-0 overflow-hidden -z-10">
+                <div className="absolute top-1/4 left-1/4 w-40 h-40 rounded-full bg-blue-500/20 animate-float-slow"></div>
+                <div className="absolute top-3/4 left-1/2 w-60 h-60 rounded-full bg-purple-500/20 animate-float-medium"></div>
+                <div className="absolute top-1/2 left-3/4 w-32 h-32 rounded-full bg-blue-600/20 animate-float-fast"></div>
+                <div className="absolute top-1/4 right-1/4 w-48 h-48 rounded-full bg-indigo-500/20 animate-float-reverse"></div>
+
+                {/* New Floating Elements */}
+                <div className="absolute top-1/6 right-1/6 w-36 h-36 rounded-full bg-red-500/20 animate-float-zigzag"></div>
+                <div className="absolute bottom-1/4 left-1/6 w-44 h-44 rounded-full bg-green-500/20 animate-float-wavy"></div>
+                <div className="absolute top-1/5 right-1/5 w-38 h-38 rounded-full bg-yellow-500/20 animate-float-circular"></div>
+                <div className="absolute bottom-1/5 right-1/4 w-50 h-50 rounded-full bg-teal-500/20 animate-float-expand-contract"></div>  
+            </div>
+            <div className="max-w-md w-full bg-white/0 p-8 rounded-2xl shadow-lg border border-gray-700">
                 <h2 className="text-3xl font-bold text-white text-center">Sign in to your account</h2>
 
                 {error && <p className="mt-3 text-center text-red-500">{error}</p>}

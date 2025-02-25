@@ -153,7 +153,19 @@ export default function AIChatGemini() {
     return (
         <>
         <Header cart={cart} favorites={favorites}/>
-            <div className="flex flex-col w-full h-screen bg-gradient-to-br from-gray-900 via-sky-950 to-green-950 pt-10">
+            <div className="flex flex-col w-full h-screen bg-gradient-to-br from-gray-900 via-sky-950 to-green-950 pt-10 relative z-10 overflow-hidden">
+                <div className="absolute top-1/3 left-1/5 w-40 h-40 rounded-full bg-blue-500/20 animate-float-slow"></div>
+                <div className="absolute top-2/3 left-1/2 w-32 h-32 rounded-full bg-blue-600/20 animate-float-fast"></div>
+                <div className="absolute top-1/6 right-1/3 w-48 h-48 rounded-full bg-indigo-500/20 animate-float-reverse"></div>
+
+                {/* New Floating Elements */}
+                <div className="absolute top-1/4 right-1/6 w-36 h-36 rounded-full bg-red-500/20 animate-float-zigzag"></div>
+                <div className="absolute bottom-1/3 left-1/4 w-44 h-44 rounded-full bg-green-500/20 animate-float-wavy"></div>
+                <div className="absolute top-1/5 right-1/4 w-38 h-38 rounded-full bg-yellow-500/20 animate-float-circular"></div>
+
+                <div className="absolute bottom-1/4 left-1/3 w-50 h-50 rounded-full bg-teal-500/20 animate-float-expand-contract"></div>
+                <div className="absolute bottom-1/6 right-1/3 w-50 h-50 overflow-hidden rounded-full bg-teal-500/20 animate-float-expand-contract"></div>  
+
                 <div className="flex-1 overflow-y-auto p-6">
                     <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400  hover:bg-gradient-to-l duration-300 sticky inset-0 ml-3">
                         Shopping Assistant AI
@@ -173,7 +185,7 @@ export default function AIChatGemini() {
                         <form onSubmit={handleSubmit} className="flex gap-2">
                             <input
                                 type="text"
-                                className="flex-1 p-3 border border-gray-600 bg-transparent rounded-xl text-white"
+                                className="flex-1 p-3 border border-gray-600 bg-transparent bg-opacity-0 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
                                 placeholder="Ask something..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
@@ -181,15 +193,12 @@ export default function AIChatGemini() {
                             />
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 disabled={loading}
                             >
-                                {loading ? (
-                                    "Thinking..."
-                                ) : (
-                                    <Send size={20} />
-                                )}
+                                {loading ? "Thinking..." : <Send size={20} />}
                             </button>
+
                         </form>
                     </div>
                 </div>

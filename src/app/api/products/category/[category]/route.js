@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(req, { params }) {
     await connectDB();
-    let { category } = params;
+    let { category } = await params;
 
     if (!category) {
         return NextResponse.json({ success: false, error: "Category is required" }, { status: 400 });

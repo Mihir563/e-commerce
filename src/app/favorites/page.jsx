@@ -1,12 +1,13 @@
 'use client'
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { ShoppingCart, Star, Heart, ArrowLeft } from "lucide-react";
+import { ShoppingCart, Star, Heart, ArrowLeft, X } from "lucide-react";
 import { removeFavorite } from "../../store/favoritesSlice";
 import { addCart, removeCart } from "../../store/addToCartSlice";
 import Header from '../components/Header';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const RATING_ARRAY = [...Array(5)];
 const EMPTY_STATE_MESSAGE = "Your favorites list is empty";
@@ -22,6 +23,8 @@ const FavoritesPage = () => {
     const user = localStorage.getItem("user");
     const parsedUser = JSON.parse(user);
     const userId = parsedUser?._id;
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const router = useRouter();
 
     const handleRemoveFavorite = (userId, id) => {
         dispatch(removeFavorite({userId, productId: id}));
@@ -30,6 +33,18 @@ const FavoritesPage = () => {
     const isCart = (id) => cart.some((item) => item.id === id);
 
     const subtitle = favorites.length > 0 ? SUBTITLE_WITH_ITEMS : SUBTITLE_EMPTY;
+
+    useEffect(() => {
+        if (!user) {
+            setShowLoginModal(true)
+        }
+    },[showLoginModal])
+
+    const toggleLoginModal = () => setShowLoginModal((prev) => !prev)
+
+    const handleLogin = (route) => {
+        router.push(route)
+    }
 
     return (
         <>
@@ -90,6 +105,80 @@ const FavoritesPage = () => {
                         </div>
                     )}
                 </div>
+                {showLoginModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-white/0 backdrop-blur-sm">
+                        <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+                            {/* Modal Header */}
+                            <div className="flex justify-between items-center border-b border-blue-800/30 p-6 bg-sky-950">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-white">Login</h2>
+                                    <p className="text-gray-300 mt-1">Access your account</p>
+                                </div>
+                                <button
+                                    onClick={toggleLoginModal}
+                                    className="p-2 rounded-full hover:bg-slate-800 transition-colors"
+                                >
+                                    <X className="h-6 w-6 text-gray-300" />
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="p-6">
+                                <div className="space-y-6">
+                                    {/* Login Benefits */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center">
+                                            <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                                                <ShoppingCart className="h-5 w-5 text-blue-400" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-white font-medium">Add to Cart</h3>
+                                                <p className="text-gray-400 text-sm">Manage your Cart easily</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                                                <Heart className="h-5 w-5 text-blue-400" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-white font-medium">Save Favorites</h3>
+                                                <p className="text-gray-400 text-sm">Keep track of items you love</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                                                <Star className="h-5 w-5 text-blue-400" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-white font-medium">Personalized Experience</h3>
+                                                <p className="text-gray-400 text-sm">Get recommendations based on your preferences</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Buttons */}
+                                    <div className="pt-4 space-y-3 ">
+                                        <button
+                                            onClick={() => handleLogin('/')}
+                                            className="w-[49%] py-3 px-4 bg-blue-200/20 border-2 text-white font-semibold rounded-lg transition-colors"
+                                        >
+                                            Go back
+                                        </button>
+                                        <button
+                                            onClick={() => handleLogin('/auth/login')}
+                                            className="w-[49%] ml-2 py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors"
+                                        >
+                                            Login / Sign Up
+                                        </button>
+                                        <p className="text-gray-400 text-center text-sm">
+                                            By continuing, you agree to our Terms of Use and Privacy Policy
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </>
     );

@@ -24,6 +24,4 @@ export async function POST(req) {
         console.error("Signup Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
-
-    
 }
