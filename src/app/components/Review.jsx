@@ -126,7 +126,16 @@ const ReviewSection = ({ productId, userId }) => {
         <div className="mt-10 px-6">
             <h2 className="text-2xl font-semibold text-white mb-4">Reviews</h2>
 
-            <form onSubmit={handleAddOrUpdateReview} className="bg-gray-800 p-4 rounded-xl">
+            <form 
+                onSubmit={(e) => {
+                    if (!userId) {
+                        e.preventDefault(); // Prevent form submission
+                        toast.warning("Please login to submit a review");
+                        return;
+                    }
+                    handleAddOrUpdateReview(e);
+                }}
+                className="bg-gray-800 p-4 rounded-xl">
                 <textarea
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
@@ -161,8 +170,9 @@ const ReviewSection = ({ productId, userId }) => {
                                     <p className="text-sm text-gray-300 font-bold">
                                         UserName: <span className="text-gray-50">{review.userId?.name || "Anonymous"}</span>
                                     </p>
-                                    <div className="text-sm text-gray-300 flex gap-2 justify-between items-center">Rating: <StarRating rating={review.rating} /></div>
+                                    <div className="text-sm text-gray-300 flex gap-2  items-center">Rating: <StarRating rating={review.rating} /></div>
                                     <p>"{review.comment}"</p>
+                                    <p className="text-sm text-gray-300"> {new Date(review.createdAt).toLocaleDateString()}</p>
                                 </div>
                                 {review.userId?._id === userId && (
                                     <div className="flex gap-2">

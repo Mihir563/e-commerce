@@ -42,15 +42,22 @@ export default function HomePage() {
         ? (isAddAction ? "❤️" : "💔")
         : (isAddAction ? "🛒" : "🗑️"),
       style: {
-        background: "linear-gradient(#111827, #1f2937 ,#000)",
+        background: isAddAction
+          ? "linear-gradient(135deg, #16a34a, #22c55e)"  // Greenish gradient for success
+          : "linear-gradient(#111827   ,#000)",   // Default dark theme for removal
         color: "white",
         fontSize: "16px",
         fontWeight: "bold",
         borderRadius: "10px",
-        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+        boxShadow: isAddAction
+          ? "0px 0px 15px rgba(34, 197, 94, 0.8)"  // Glowing effect for success
+          : "0px 4px 10px rgba(0, 0, 0, 0.2)",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
       },
     });
   };
+
 
   // Toggle login modal
   const toggleLoginModal = () => {

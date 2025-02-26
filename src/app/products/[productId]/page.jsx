@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addCart, removeCart, fetchCart } from "../../../store/addToCartSlice";
-import { ShoppingCart, Star, Heart, Loader2 } from "lucide-react";
+import { ShoppingCart, Star, Heart, Loader2, X } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import Header from "../../components/Header";
@@ -31,7 +31,32 @@ const ProductPage = () => {
   const userId = parsedUser?._id;
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false)
   const [recommendationError, setRecommendationError] = useState(null);
+  const toggleLoginModal = () => {
+    setShowLoginModal(!showLoginModal);
+  };
+
+  // Redirect to login page
+  const handleLogin = () => {
+    router.push('/auth/login');
+    setShowLoginModal(false);
+  };
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showLoginModal && e.target.classList.contains('modal-overlay')) {
+        setShowLoginModal(false);
+      }
+    };
+
+    if (showLoginModal) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showLoginModal]);
 
   // Toast notifications
   const notify = (name, action) => {
@@ -239,6 +264,10 @@ const ProductPage = () => {
                     />
                     <button
                       onClick={() => {
+                        if (!userId) {
+                          setShowLoginModal(true);
+                          return;
+                        }
                         dispatch(
                           isFavorite(productData.id)
                             ? removeFavorite({
@@ -295,6 +324,10 @@ const ProductPage = () => {
                     </p>
                     <button
                       onClick={() => {
+                        if (!userId) {
+                          setShowLoginModal(true);
+                          return;
+                        }
                         dispatch(
                           isCart(productData.id)
                             ? removeCart({ userId, productId: productData._id })
@@ -322,6 +355,74 @@ const ProductPage = () => {
             <ReviewSection productId={productId} userId={userId}/>
 
             <RecommendedProducts />
+            {showLoginModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-white/0 backdrop-blur-sm">
+                <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden ">
+                  {/* Modal Header */}
+                  <div className="flex justify-between items-center border-b border-blue-800/30 p-6 bg-sky-950">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Login</h2>
+                      <p className="text-gray-300 mt-1">Access your account</p>
+                    </div>
+                    <button
+                      onClick={toggleLoginModal}
+                      className="p-2 rounded-full hover:bg-slate-800 transition-colors"
+                    >
+                      <X className="h-6 w-6 text-gray-300" />
+                    </button>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6">
+                    <div className="space-y-6">
+                      {/* Login Benefits */}
+                      <div className="space-y-4">
+                        <div className="flex items-center">
+                          <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                            <ShoppingCart className="h-5 w-5 text-blue-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-white font-medium">Manage Orders</h3>
+                            <p className="text-gray-400 text-sm">Track and manage your orders easily</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                            <Heart className="h-5 w-5 text-blue-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-white font-medium">Save Favorites</h3>
+                            <p className="text-gray-400 text-sm">Keep track of items you love</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="bg-blue-500/10 p-2 rounded-full mr-3">
+                            <Star className="h-5 w-5 text-blue-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-white font-medium">Personalized Experience</h3>
+                            <p className="text-gray-400 text-sm">Get recommendations based on your preferences</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Buttons */}
+                      <div className="pt-4 space-y-3">
+                        <button
+                          onClick={handleLogin}
+                          className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors"
+                        >
+                          Login / Sign Up
+                        </button>
+                        <p className="text-gray-400 text-center text-sm">
+                          By continuing, you agree to our Terms of Use and Privacy Policy
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <ToastContainer />
