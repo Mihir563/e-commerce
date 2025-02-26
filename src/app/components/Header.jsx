@@ -62,27 +62,25 @@ const Header = ({ favorites, products, onSearch, cart, categories }) => {
     const term = e.target.value;
     setSearchTerm(term);
 
-    if (!products || products.length === 0) {
-      console.warn("Products array is empty or undefined"); // Debugging
-      return;
-    }
+    console.log("Search Term:", term);
+    console.log("Products Before Filtering:", products); // Debugging step
 
     if (term.trim() === "") {
       setSearchResults([]);
-      onSearch(products, ""); // Pass empty term
+      onSearch(products ?? []);
       return;
     }
 
-    
+    // Dynamically check if product has `productId`
+    const filteredProducts = (products ?? []).filter((product) => {
+      const title = product?.title || product?.productId?.title; // Handle both cases
+      return title?.toLowerCase().includes(term.toLowerCase());
+    });
 
-    const filteredProducts = products.filter((product) =>
-      product?.title?.toLowerCase().includes(term.toLowerCase())
-    );
-
-    console.log("Filtered Products:", filteredProducts); // Debugging
+    console.log("Filtered Products:", filteredProducts); // Debugging step
 
     setSearchResults(filteredProducts.slice(0, 5));
-    onSearch(filteredProducts, term);
+    onSearch(filteredProducts);
   };
 
 
@@ -186,19 +184,19 @@ const Header = ({ favorites, products, onSearch, cart, categories }) => {
                     <div className="max-h-64 overflow-y-auto border-t border-gray-700">
                       {searchResults.map((product) => (
                         <Link
-                          key={product.id}
-                          href={`/products/${product._id}`}
+                          key={product.id || product.productId.id}
+                          href={`/products/${product._id || product.productId._id}`}
                           className="flex items-center gap-3 p-2 hover:bg-gray-700 transition-colors"
                           onClick={() => setIsSearchOpen(false)}
                         >
                           <img
-                            src={product.image}
-                            alt={product.title}
+                            src={product.image || product.productId.image}
+                            alt={product.title || product.productId.title}
                             className="w-10 h-10 object-cover rounded"
                           />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white truncate">{product.title}</p>
-                            <p className="text-sm text-blue-400">${product.price}</p>
+                            <p className="text-sm text-white truncate">{product.title || product.productId.title}</p>
+                            <p className="text-sm text-blue-400">${product.price || product.productId.price}</p>
                           </div>
                         </Link>
                       ))}

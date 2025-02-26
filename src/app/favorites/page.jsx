@@ -61,7 +61,7 @@ const FavoritesPage = () => {
     setSearchTerm(term);
   };
 
-  const displayFavorites = searchTerm.trim() !== "" ? searchResults : favorites;
+  const displayFavorites = searchTerm?.trim() !== "" ? searchResults : favorites;
   return (
     <>
       <Header favorites={favorites} onSearch={onSearch} cart={cart}  products={favorites}/>

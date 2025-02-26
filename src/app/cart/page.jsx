@@ -117,14 +117,15 @@ const CartPage = () => {
         setShowLoginModal(false)
         router.push(route)
     }
-     const [searchResults, setSearchResults] = useState([]);
     
-      const onSearch = (results) => {
-        setSearchResults(results);
-      };
-    
-      const displayFavorites =
-        searchTerm.trim() !== "" ? searchResults : cart;
+      const [searchResults, setSearchResults] = useState([]);
+      
+        const onSearch = (results, term) => {
+          setSearchResults(results);
+          setSearchTerm(term);
+        };
+
+    const displayCart = searchTerm?.trim() !== "" ? searchResults : cart;
 
     return (
         <>
@@ -149,7 +150,7 @@ const CartPage = () => {
                 ) : (
                     <div className="px-6 py-12 max-w-7xl mx-auto">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                            {cart.map((product, index) => (
+                            {displayCart.map((product, index) => (
                                 <CartItem key={index} product={product.productId} index={index} onRemove={handleRemoveCartItem} />
                             ))}
                         </div>
