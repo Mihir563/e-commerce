@@ -223,7 +223,7 @@ const ProductPage = () => {
                 <img
                   src={product.image}
                   alt={product.title}
-                  className="w-full h-full object-contain rounded-lg"
+                  className="w-full h-full object-fill rounded-lg"
                 />
               </div>
               <h3 className="text-white text-lg font-semibold line-clamp-2 h-14 mb-2">
