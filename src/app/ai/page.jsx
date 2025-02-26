@@ -13,18 +13,18 @@ const CodeBlock = ({ code }) => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
-    
+
     return (
         <div className="relative mt-4 rounded-lg overflow-hidden">
             <div className="absolute right-2 top-2">
                 <button
                     onClick={copyToClipboard}
-                    className="p-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                    className="p-2 bg-black/40 rounded-lg hover:bg-gray-600 transition-colors"
                 >
                     <Copy size={16} className={copied ? "text-green-400" : "text-gray-300"} />
                 </button>
             </div>
-            <pre className="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+            <pre className="bg-black/70 p-4 rounded-lg overflow-x-auto">
                 <code className="text-sm text-gray-200">{code}</code>
             </pre>
         </div>
@@ -89,8 +89,8 @@ const Message = ({ role, content }) => {
     const formattedContent = formatResponse(content);
 
     return (
-        <div className={`flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-            <div className={`max-w-[80%] text-gray-300 text-lg font-semibold ${role === 'user' ? 'bg-sky-900' : 'bg-gray-700'} rounded-lg p-4`}>
+        <div className={`flex ${role === 'user' ? 'justify-end' : 'justify-start'} mb-3`}>
+            <div className={`max-w-[80%]  text-gray-200 text-lg font-semibold border border-gray-500/80 ${role === 'user' ? 'bg-[#333369]' : 'bg-[#1e1c1c] '} rounded-lg p-3 h-auto`}>
                 {formattedContent.map((part, index) => (
                     part.type === 'code' ?
                         <CodeBlock key={index} code={part.content} /> :
@@ -105,11 +105,29 @@ export default function AIChatGemini() {
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [userId, setUserId] = useState(null);
     const messagesEndRef = useRef(null);
     const dispatch = useDispatch();
     const favorites = useSelector((state) => state.favorites.items);
     const cart = useSelector((state) => state.cart.items);
 
+    // Get userId from localStorage on component mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user && user._id) {
+                setUserId(user._id); 
+                loadChatHistory(user._id);
+            }
+        }
+    }, []);
+
+    // Save chat history whenever messages change
+    useEffect(() => {
+        if (userId && messages.length > 0) {
+            saveChatHistory();
+        }
+    }, [messages]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -119,14 +137,66 @@ export default function AIChatGemini() {
         scrollToBottom();
     }, [messages]);
 
+    // Load chat history for the user
+    const loadChatHistory = async (uid) => {
+        try {
+            console.log(uid);
+            
+            const res = await fetch(`/api/saveChat/${uid}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+            console.log(res);
+            
+            if (res.ok) {
+                const data = await res.json();
+                console.log({data:data});
+                if (data.chat && Array.isArray(data.chat)) {
+                    setMessages(data.chat);
+                    console.log({data:data});
+                    
+                }
+            }
+        } catch (error) {
+            console.error("Error loading chat history:", error);
+        }
+    };
+
+    // Save chat history to the API
+    // Save only the last message to the API
+    const saveChatHistory = async () => {
+        if (!userId || messages.length === 0) return;
+
+        try {
+            const lastMessage = messages[messages.length - 1];
+            console.log("Last message", lastMessage,"messages", messages)
+
+            const res = await fetch("/api/saveChat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: userId,
+                    messages: [lastMessage], // Send only the last message
+                }),
+            });
+
+            if (!res.ok) {
+                console.error("Failed to save last chat message");
+            }
+        } catch (error) {
+            console.error("Error saving last chat message:", error);
+        }
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!input.trim()) return;
 
         const userMessage = input;
-        setInput("");
         setLoading(true);
-
+        
+        setInput("");
         // Add user message immediately
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
@@ -150,9 +220,12 @@ export default function AIChatGemini() {
         }
     };
 
+    console.log(messages);
+    
+
     return (
         <>
-        <Header cart={cart} favorites={favorites}/>
+            <Header cart={cart} favorites={favorites} />
             <div className="flex flex-col w-full h-screen bg-gradient-to-br from-gray-900 via-sky-950 to-green-950 pt-10 relative z-10 overflow-hidden">
                 <div className="absolute top-1/3 left-1/5 w-40 h-40 rounded-full bg-blue-500/20 animate-float-slow"></div>
                 <div className="absolute top-2/3 left-1/2 w-32 h-32 rounded-full bg-blue-600/20 animate-float-fast"></div>
@@ -164,13 +237,13 @@ export default function AIChatGemini() {
                 <div className="absolute top-1/5 right-1/4 w-38 h-38 rounded-full bg-yellow-500/20 animate-float-circular"></div>
 
                 <div className="absolute bottom-1/4 left-1/3 w-50 h-50 rounded-full bg-teal-500/20 animate-float-expand-contract"></div>
-                <div className="absolute bottom-1/6 right-1/3 w-50 h-50 overflow-hidden rounded-full bg-teal-500/20 animate-float-expand-contract"></div>  
+                <div className="absolute bottom-1/6 right-1/3 w-50 h-50 overflow-hidden rounded-full bg-teal-500/20 animate-float-expand-contract"></div>
 
                 <div className="flex-1 overflow-y-auto p-6">
                     <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400  hover:bg-gradient-to-l duration-300 sticky inset-0 ml-3">
                         Shopping Assistant AI
                     </h1>
-                    <div className="max-w-3xl mx-auto">
+                    <div className="max-w-3xl mx-auto ">
                         <div className="space-y-4">
                             {messages.map((message, index) => (
                                 <Message key={index} role={message.role} content={message.content} />
@@ -198,7 +271,6 @@ export default function AIChatGemini() {
                             >
                                 {loading ? "Thinking..." : <Send size={20} />}
                             </button>
-
                         </form>
                     </div>
                 </div>

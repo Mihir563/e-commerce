@@ -51,3 +51,52 @@ export async function POST(request) {
         );
     }
 }
+
+export async function PUT(request) {
+    try {
+        await connectDB();
+
+        const { userId, currentPassword, newPassword } = await request.json();
+        console.log("Password update attempt for userId:", userId); // Debug log
+
+        // Find user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return NextResponse.json(
+                { error: "User not found" },
+                { status: 404 }
+            );
+        }
+
+        // Verify current password
+        const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isPasswordMatch) {
+            return NextResponse.json(
+                { error: "Current password is incorrect" },
+                { status: 401 }
+            );
+        }
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Update user's password
+        user.password = hashedPassword;
+        await user.save();
+
+        return NextResponse.json(
+            { message: "Password updated successfully" },
+            { status: 200 }
+        );
+
+    } catch (error) {
+        console.error("Password update error:", error); // Debug log
+        return NextResponse.json(
+            { error: "Server error" },
+            { status: 500 }
+        );
+    }
+}

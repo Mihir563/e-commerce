@@ -16,7 +16,7 @@ export async function POST(req) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Fetch product data from FakeStoreAPI
-    const productRes = await fetch("https://fakestoreapi.com/products");
+    const productRes = await fetch("http://localhost:3000/api/products");
     if (!productRes.ok) throw new Error("Failed to fetch product data.");
     const products = await productRes.json();
 

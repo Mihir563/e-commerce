@@ -201,10 +201,10 @@ export default function HomePage() {
                 displayedProducts.map((product, index) => (
                   <div
                     key={product.id}
-                    className="group relative animate-fadeInUp"
+                    className="group relative animate-fadeInUp bg-gradient-to-b from-sky-950 via-blue-950 to-slate-900 rounded-2xl p-6 border shadow-xl transition-all duration-700 hover:-translate-y-2 hover:shadow-3xl hover:bg-gradient-to-br"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className="bg-gradient-to-b from-sky-950 via-blue-950 to-slate-900 rounded-2xl p-6 border shadow-xl transition-all duration-700 hover:-translate-y-2 hover:shadow-3xl hover:bg-gradient-to-br">
+                    <div className="">
                       {/* Product Image + Favorite Button */}
                       <div
                         className="relative overflow-hidden rounded-xl aspect-square mb-6 cursor-pointer"
@@ -340,7 +340,7 @@ export default function HomePage() {
         {/* Login Modal */}
         {showLoginModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-white/0 backdrop-blur-sm">
-            <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+            <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden ">
               {/* Modal Header */}
               <div className="flex justify-between items-center border-b border-blue-800/30 p-6 bg-sky-950">
                 <div>

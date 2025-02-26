@@ -29,11 +29,11 @@ const CartItem = React.memo(({ product, index, onRemove }) => {
     
     return (
         <div
-            className="group relative animate-fadeInUp"
+            className="group relative animate-fadeInUp bg-gradient-to-b from-sky-950 via-blue-950 to-slate-900 hover:bg-gradient-to-t backdrop-blur-lg rounded-2xl p-6 border 
+                     shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
             style={{ animationDelay: `${index * 50}ms` }}
         >
-            <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50 
-                     shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <div className=" ">
                 <div className="relative overflow-hidden rounded-xl aspect-square mb-6">
                     <img
                         src={product?.image}
@@ -107,6 +107,7 @@ const CartPage = () => {
         if (!user) {
             setShowLoginModal(true)
         }
+        
     },[showLoginModal])
 
     const toggleLoginModal = () => setShowLoginModal((prev) => !prev)

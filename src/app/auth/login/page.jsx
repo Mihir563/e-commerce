@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,7 +12,16 @@ export default function LoginPage() {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [failedAttempts, setFailedAttempts] = useState(0);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
     const router = useRouter();
+
+    // Check if we should show the forgot password button based on failed attempts
+    useEffect(() => {
+        if (failedAttempts >= 2) {
+            setShowForgotPassword(true);
+        }
+    }, [failedAttempts]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,6 +47,7 @@ export default function LoginPage() {
             toast.success("Login successful!", { theme: "dark", autoClose: 1500 });
             setTimeout(() => router.push("/"), 1500);
         } catch (err) {
+            setFailedAttempts(prevAttempts => prevAttempts + 1);
             setError("Invalid email or password");
             toast.error("Login failed. Please check your credentials.", { theme: "dark" });
         } finally {
@@ -45,8 +55,16 @@ export default function LoginPage() {
         }
     };
 
+    const handleForgotPassword = () => {
+        // Store the email for the password reset page
+        if (formData.email) {
+            localStorage.setItem("resetEmail", formData.email);
+        }
+        router.push("/auth/reset-password");
+    };
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black  relative z-10">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black relative z-10">
             <div className="absolute inset-0 overflow-hidden -z-10">
                 <div className="absolute top-1/4 left-1/4 w-40 h-40 rounded-full bg-blue-500/20 animate-float-slow"></div>
                 <div className="absolute top-3/4 left-1/2 w-60 h-60 rounded-full bg-purple-500/20 animate-float-medium"></div>
@@ -57,12 +75,17 @@ export default function LoginPage() {
                 <div className="absolute top-1/6 right-1/6 w-36 h-36 rounded-full bg-red-500/20 animate-float-zigzag"></div>
                 <div className="absolute bottom-1/4 left-1/6 w-44 h-44 rounded-full bg-green-500/20 animate-float-wavy"></div>
                 <div className="absolute top-1/5 right-1/5 w-38 h-38 rounded-full bg-yellow-500/20 animate-float-circular"></div>
-                <div className="absolute bottom-1/5 right-1/4 w-50 h-50 rounded-full bg-teal-500/20 animate-float-expand-contract"></div>  
+                <div className="absolute bottom-1/5 right-1/4 w-50 h-50 rounded-full bg-teal-500/20 animate-float-expand-contract"></div>
             </div>
             <div className="max-w-md w-full bg-white/0 p-8 rounded-2xl shadow-lg border border-gray-700">
                 <h2 className="text-3xl font-bold text-white text-center">Sign in to your account</h2>
 
                 {error && <p className="mt-3 text-center text-red-500">{error}</p>}
+                {failedAttempts > 0 && (
+                    <p className="mt-2 text-center text-yellow-400 text-sm">
+                        Failed attempts: {failedAttempts}
+                    </p>
+                )}
 
                 <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
                     {/* Email Input */}
@@ -105,6 +128,17 @@ export default function LoginPage() {
                     >
                         {loading ? "Signing in..." : "Sign in"}
                     </button>
+
+                    {/* Forgot Password Button - Only shows after 2 failed attempts */}
+                    {showForgotPassword && (
+                        <button
+                            type="button"
+                            onClick={handleForgotPassword}
+                            className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-all mt-2"
+                        >
+                            Forgot Password?
+                        </button>
+                    )}
                 </form>
 
                 {/* Sign Up Link */}
