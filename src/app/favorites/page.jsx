@@ -8,6 +8,7 @@ import { addCart, removeCart } from "../../store/addToCartSlice";
 import Header from "../components/Header";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const RATING_ARRAY = [...Array(5)];
 const EMPTY_STATE_MESSAGE = "Your favorites list is empty";
@@ -18,14 +19,18 @@ const SUBTITLE_EMPTY = "Start adding items to your favorites!";
 
 const FavoritesPage = () => {
   const dispatch = useDispatch();
-  const favorites = useSelector((state) => state.favorites.items);
-  const cart = useSelector((state) => state.cart.items);
+  const favorites = useSelector((state) => state.favorites?.items);
+  const cart = useSelector((state) => state.cart?.items);
   const user = localStorage.getItem("user");
   const parsedUser = JSON.parse(user);
   const userId = parsedUser?._id;
   const [showLoginModal, setShowLoginModal] = useState(false);
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const [products, setProducts] = useState([]);
+
+ 
   const handleRemoveFavorite = (userId, id) => {
     dispatch(removeFavorite({ userId, productId: id }));
   };
@@ -44,11 +49,22 @@ const FavoritesPage = () => {
 
   const handleLogin = (route) => {
     router.push(route);
+
+    
+  };
+  
+
+  const [searchResults, setSearchResults] = useState([]);
+
+  const onSearch = (results, term) => {
+    setSearchResults(results);
+    setSearchTerm(term);
   };
 
+  const displayFavorites = searchTerm.trim() !== "" ? searchResults : favorites;
   return (
     <>
-      <Header favorites={favorites} cart={cart}  />
+      <Header favorites={favorites} onSearch={onSearch} cart={cart}  products={favorites}/>
       <main className="min-h-screen bg-gradient-to-br pt-10 from-gray-900 via-gray-800 to-black text-white">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-3xl animate-fadeIn" />
@@ -77,7 +93,7 @@ const FavoritesPage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
-              {favorites.map((product, index) => (
+              {displayFavorites.map((product, index) => (
                 <div
                   key={product.id}
                       className="group relative animate-fadeInUp bg-gradient-to-b from-sky-950 via-blue-950 to-slate-900 hover:bg-gradient-to-t backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
@@ -150,19 +166,14 @@ const FavoritesPage = () => {
         </div>
         {showLoginModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-white/0 backdrop-blur-sm">
-            <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+            <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden ">
               {/* Modal Header */}
               <div className="flex justify-between items-center border-b border-blue-800/30 p-6 bg-sky-950">
                 <div>
                   <h2 className="text-2xl font-bold text-white">Login</h2>
                   <p className="text-gray-300 mt-1">Access your account</p>
                 </div>
-                <button
-                  onClick={toggleLoginModal}
-                  className="p-2 rounded-full hover:bg-slate-800 transition-colors"
-                >
-                  <X className="h-6 w-6 text-gray-300" />
-                </button>
+               
               </div>
 
               {/* Modal Body */}

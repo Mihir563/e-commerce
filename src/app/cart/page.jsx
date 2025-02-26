@@ -54,7 +54,7 @@ const CartItem = React.memo(({ product, index, onRemove }) => {
                     <h2 className="font-semibold text-lg leading-tight">
                         {product?.title?.length > 40 ? `${product?.title?.substring(0, 40)}...` : product?.title}
                     </h2>
-                    <p className="text-2xl font-bold text-blue-400">${product.price}</p>
+                    <p className="text-2xl font-bold text-blue-400">${product?.price}</p>
                 </div>
             </div>
         </div>
@@ -82,6 +82,7 @@ const CartPage = () => {
     const cart = useSelector((state) => state.cart.items);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const router = useRouter();
+    const [searchTerm, setSearchTerm] = useState("");
 
     const user = localStorage.getItem("user");
     const parsedUser = JSON.parse(user);
@@ -116,10 +117,18 @@ const CartPage = () => {
         setShowLoginModal(false)
         router.push(route)
     }
+     const [searchResults, setSearchResults] = useState([]);
+    
+      const onSearch = (results) => {
+        setSearchResults(results);
+      };
+    
+      const displayFavorites =
+        searchTerm.trim() !== "" ? searchResults : cart;
 
     return (
         <>
-            <Header cart={cart} />
+            <Header cart={cart} onSearch={onSearch} products={cart} />
             <main className="min-h-screen bg-gradient-to-br pt-10 from-gray-900 via-gray-800 to-black text-white">
                 <div className="relative overflow-hidden pt-">
                     <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-3xl animate-fadeIn" />
@@ -153,19 +162,14 @@ const CartPage = () => {
             {/* Login Modal */}
             {showLoginModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-white/0 backdrop-blur-sm">
-                    <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+                    <div className="bg-gradient-to-br from-sky-950 to-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden ">
                         {/* Modal Header */}
                         <div className="flex justify-between items-center border-b border-blue-800/30 p-6 bg-sky-950">
                             <div>
                                 <h2 className="text-2xl font-bold text-white">Login</h2>
                                 <p className="text-gray-300 mt-1">Access your account</p>
                             </div>
-                            <button
-                                onClick={toggleLoginModal}
-                                className="p-2 rounded-full hover:bg-slate-800 transition-colors"
-                            >
-                                <X className="h-6 w-6 text-gray-300" />
-                            </button>
+                          
                         </div>
 
                         {/* Modal Body */}

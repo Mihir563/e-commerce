@@ -62,21 +62,30 @@ const Header = ({ favorites, products, onSearch, cart, categories }) => {
     const term = e.target.value;
     setSearchTerm(term);
 
-    if (term.trim() === "") {
-      setSearchResults([]);
-      onSearch(products ?? []);
+    if (!products || products.length === 0) {
+      console.warn("Products array is empty or undefined"); // Debugging
       return;
     }
 
-    const filteredProducts = (products ?? []).filter((product) =>
-      product?.title
-        ?.toLowerCase()
-        .includes(term.toLowerCase())
+    if (term.trim() === "") {
+      setSearchResults([]);
+      onSearch(products, ""); // Pass empty term
+      return;
+    }
+
+    
+
+    const filteredProducts = products.filter((product) =>
+      product?.title?.toLowerCase().includes(term.toLowerCase())
     );
 
-    setSearchResults(filteredProducts.slice(0, 5)); // Show only top 5 results
-    onSearch(filteredProducts);
+    console.log("Filtered Products:", filteredProducts); // Debugging
+
+    setSearchResults(filteredProducts.slice(0, 5));
+    onSearch(filteredProducts, term);
   };
+
+
 
   useEffect(() => {
     if (isSearchOpen) {
