@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-
+    
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
@@ -216,6 +216,7 @@
 .animation-delay-300 {
     animation-delay: 300ms;
 }
+
 
 @keyframes wave {
     0% {

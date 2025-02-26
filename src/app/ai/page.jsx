@@ -247,23 +247,32 @@ export default function AIChatGemini() {
         <>
             <Header cart={cart} favorites={favorites} />
             <div className="flex flex-col w-full h-screen bg-gradient-to-br from-gray-900 via-sky-950 to-green-950 pt-10 relative z-10 overflow-hidden">
-                <div className="absolute top-1/3 left-1/5 w-40 h-40 rounded-full bg-blue-500/20 animate-float-slow"></div>
-                <div className="absolute top-2/3 left-1/2 w-32 h-32 rounded-full bg-blue-600/20 animate-float-fast"></div>
-                <div className="absolute top-1/6 right-1/3 w-48 h-48 rounded-full bg-indigo-500/20 animate-float-reverse"></div>
+                <div className="absolute inset-0 z-[-1] overflow-hidden">
+                    {/* Glowing Background Layer */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-gray-900 to-black opacity-80"></div>
 
-                {/* New Floating Elements */}
-                <div className="absolute top-1/4 right-1/6 w-36 h-36 rounded-full bg-red-500/20 animate-float-zigzag"></div>
-                <div className="absolute bottom-1/3 left-1/4 w-44 h-44 rounded-full bg-green-500/20 animate-float-wavy"></div>
-                <div className="absolute top-1/5 right-1/4 w-38 h-38 rounded-full bg-yellow-500/20 animate-float-circular"></div>
+                    {/* Moving Light Effect with enhanced animation */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,150,255,0.4)_0%,transparent_60%)] animate-glow-move"></div>
 
-                <div className="absolute bottom-1/4 left-1/3 w-50 h-50 rounded-full bg-teal-500/20 animate-float-expand-contract"></div>
-                <div className="absolute bottom-1/6 right-1/3 w-50 h-50 overflow-hidden rounded-full bg-teal-500/20 animate-float-expand-contract"></div>
+                    {/* Additional rotating light overlay */}
+                    {/* <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(120,0,255,0.2)_0%,transparent_70%)] animate-glow-rotate"></div> */}
 
-                <div className="flex-1 overflow-y-auto p-6">
-                    <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400  hover:bg-gradient-to-l duration-300 sticky inset-0 ml-3">
+                    {/* Floating Blurred Glows with enhanced animations */}
+                    <div className="absolute top-1/4 right-2/3 w-60 h-60 bg-blue-500/30 blur-3xl rounded-full animate-glow-float animate-glow-pulse"></div>
+                    <div className="absolute bottom-1/3 left-2/5 w-80 h-80 bg-purple-500/30 blur-3xl rounded-full animate-glow-float-reverse"></div>
+
+                    {/* Additional glow elements */}
+                    <div className="absolute top-1/2 right-1/3 w-40 h-40 bg-cyan-400/20 blur-3xl rounded-full animate-glow-float"></div>
+                    <div className="absolute bottom-1/4 left-1/4 w-52 h-52 bg-indigo-600/25 blur-3xl rounded-full animate-glow-float-reverse animate-glow-pulse"></div>
+                </div>
+
+
+
+                <div className="flex-1 overflow-y-auto p-6 z-10">
+                    <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400  hover:bg-gradient-to-l duration-300 sticky inset-0 ml-3 ">
                         Shopping Assistant AI
                     </h1>
-                    <div className="max-w-3xl mx-auto ">
+                    <div className="max-w-3xl mx-auto tracking-tight font-nunito">
                         <div className="space-y-4">
                             {messages.map((message, index) => (
                                 <Message key={index} role={message.role} content={message.content} />
@@ -273,7 +282,7 @@ export default function AIChatGemini() {
                     </div>
                 </div>
 
-                <div className="mb-5 p-4">
+                <div className="mb-5 p-4 z-10">
                     <div className="max-w-3xl mx-auto">
                         <form onSubmit={handleSubmit} className="flex gap-2">
                             <input
